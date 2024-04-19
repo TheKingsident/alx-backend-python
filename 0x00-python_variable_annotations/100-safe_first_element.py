@@ -2,9 +2,10 @@
 """
 Module of a duck-typed annotated function safe_first_element
 """
-from typing import Sequence, Union, Any, NoneType
+from typing import Sequence, Union, Any
 
-def safe_first_element(lst: Sequence[Any]) -> Union[Any, NoneType]:
+
+def safe_first_element(lst: Sequence[Any]) -> Union[Any, None]:
     """
     Function safe_first_element
     """
