@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Module of a type-annotated function floor
 """
