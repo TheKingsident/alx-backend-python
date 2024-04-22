@@ -9,7 +9,8 @@ import asyncio
 
 async def wait_n(n: int, max_delay: int) -> list[float]:
     """
-    Async routine called wait_n that takes in 2 int arguments
+    Async routine called wait_n that takes in
+    2 int arguments
     """
     wait_times = []
     delays = []
