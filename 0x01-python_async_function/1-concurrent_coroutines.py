@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """
-Module on an asynchronous coroutine
+Module of an async coroutine
 """
 
 import asyncio
-
 wait_random = __import__('0-basic_async_syntax').wait_random
 
 
