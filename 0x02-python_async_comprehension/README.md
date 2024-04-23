@@ -1,0 +1,1 @@
+This directory contains assignment files for the "0x02. Python - Async Comprehension" tasks from ALX
