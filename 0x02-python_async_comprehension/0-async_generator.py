@@ -6,7 +6,7 @@ import random
 from typing import AsyncGenerator
 
 
-async def async_generator() -> AsyncGenerator[float]:
+async def async_generator() -> AsyncGenerator[float, None]:
     """ The coroutine called async_generator that takes no arguments """
     for _ in range(10):
         yield random.uniform(0, 10)
