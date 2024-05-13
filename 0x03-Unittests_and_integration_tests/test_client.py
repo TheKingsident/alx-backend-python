@@ -4,6 +4,7 @@
 
 import unittest
 from unittest.mock import PropertyMock, patch
+from unittest import TestCase
 from parameterized import parameterized
 from client import GithubOrgClient
 
@@ -73,3 +74,25 @@ class TestGithubOrgClient(unittest.TestCase):
         mock_public_repos_url.assert_called_once()
 
         mock_get_json.assert_called_once_with(url)
+
+    def test_has_license(self):
+        test_cases = [
+            # Test case 1: repo has the expected license
+            ({'license': {'key': 'my_license'}}, 'my_license', True),
+            # Test case 2: repo has a different license
+            ({'license': {'key': 'other_license'}}, 'my_license', False),
+            # Test case 3: repo does not have a license
+            ({}, 'my_license', False),
+            # Test case 4: repo has no license key
+            ({'license': {}}, 'my_license', False),
+        ]
+
+        for repo, license_key, expected_result in test_cases:
+            with self.subTest(repo=repo, license_key=license_key,
+                              expected_result=expected_result):
+                # Create an instance of GithubOrgClient
+                client = GithubOrgClient("Google")
+                # Call the has_license method
+                result = client.has_license(repo, license_key)
+                # Assert that the result is what we expect
+                self.assertEqual(result, expected_result)
