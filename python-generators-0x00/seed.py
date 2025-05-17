@@ -4,8 +4,7 @@ import mysql.connector
 from mysql.connector import errorcode
 
 def connect_db():
-    """Connect to the MySQL database server"""
-
+    """Connects to the MySQL database server"""
     try:
         connection = mysql.connector.connect(
             host='localhost',
@@ -23,12 +22,22 @@ def connect_db():
     return None
 
 def create_database(connection):
-    """Create a new database"""
+    """Creates a new database"""
     cursor = connection.cursor()
     try:
         cursor.execute("CREATE DATABASE IF NOT EXISTS ALX_prodev")
-        print("Database ALX_prodev created successfully")
+        print("Database created")
     except mysql.connector.Error as err:
-        print(f"Failed creating database: {err}")
+        print(f"Failed to create database: {err}")
     finally:
         cursor.close()
+
+def connect_to_prodev():
+    """Connects to the database"""
+    connection = mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='password',
+        database='ALX_prodev'
+    )
+    return connection
