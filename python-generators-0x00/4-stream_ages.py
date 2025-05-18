@@ -5,7 +5,7 @@ import mysql.connector
 from mysql.connector import errorcode
 from seed import connect_to_prodev
 
-def stream_ages():
+def stream_user_ages():
     stream_connection = connect_to_prodev()
     if not stream_connection:
         print("Failed to connect to the database.")
@@ -34,7 +34,7 @@ def average_age():
     """Calculates the average age as the gen function streams ages"""
     total_age = 0
     count = 0
-    for age in stream_ages():
+    for age in stream_user_ages():
         total_age += age
         count += 1
     if count == 0:
