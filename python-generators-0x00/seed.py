@@ -64,7 +64,7 @@ def create_table(connection):
                 user_id CHAR(36) PRIMARY KEY,
                 name VARCHAR(255) NOT NULL,
                 email VARCHAR(255) NOT NULL UNIQUE,
-                age DECIMAL(5, 2) NOT NULL
+                age TINYINT NOT NULL
             )
         """)
         print("Table created")
