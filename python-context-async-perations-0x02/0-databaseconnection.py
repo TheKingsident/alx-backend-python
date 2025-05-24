@@ -12,7 +12,6 @@ class DatabaseConnection:
         self.connection = sqlite3.connect("users.db")
         self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
-        self.cursor.execute("SELECT * FROM users")
         return self.cursor.fetchall()
     
     def __exit__(self, exc_type, exc_value, traceback):
@@ -24,3 +23,14 @@ class DatabaseConnection:
         if exc_type is not None:
             print(f"An error occurred: {exc_value}")
         return True
+
+def example_usage():
+    """ Example usage of the DatabaseConnection context manager."""
+    with DatabaseConnection() as cursor:
+        cursor.execute("SELECT * FROM users")
+        results = cursor.fetchall()
+        for row in results:
+            print(dict(row))
+
+if __name__ == "__main__":
+    example_usage()
