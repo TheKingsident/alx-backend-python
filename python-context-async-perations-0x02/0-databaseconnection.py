@@ -10,8 +10,10 @@ class DatabaseConnection:
     def __enter__(self):
         """Open database connection and return cursor."""
         self.connection = sqlite3.connect("users.db")
+        self.connection.row_factory = sqlite3.Row
         self.cursor = self.connection.cursor()
-        return self.cursor
+        self.cursor.execute("SELECT * FROM users")
+        return self.cursor.fetchall()
     
     def __exit__(self, exc_type, exc_value, traceback):
         """Close connection and handle exceptions."""
