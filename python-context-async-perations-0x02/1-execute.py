@@ -23,3 +23,13 @@ class  ExecuteQuery():
         if exc_type is not None:
             print(f"An error occurred: {exc_value}")
         return True
+
+
+def example_usage():
+    """Example usage of the ExecuteQuery context manager."""
+    with ExecuteQuery("SELECT * FROM users WHERE age > ?", 25) as results:
+        for row in results:
+            print(dict(row))
+
+if __name__ == "__main__":
+    example_usage()
