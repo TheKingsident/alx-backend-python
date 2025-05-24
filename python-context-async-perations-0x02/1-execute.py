@@ -27,7 +27,7 @@ class  ExecuteQuery():
 
 def example_usage():
     """Example usage of the ExecuteQuery context manager."""
-    with ExecuteQuery("SELECT * FROM users WHERE age > ?", 25) as results:
+    with ExecuteQuery("SELECT * FROM users WHERE age > ?", (25,)) as results:
         for row in results:
             print(dict(row))
 
