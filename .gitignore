@@ -7,3 +7,5 @@
 0x02-python_async_comprehension/__pycache__/
 0x03-Unittests_and_integration_tests/__pycache__/
 python-generators-0x00/__pycache__/
+env/
+messaging_app/messaging_app/__pycache__/
