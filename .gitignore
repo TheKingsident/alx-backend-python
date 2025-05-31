@@ -9,3 +9,7 @@
 python-generators-0x00/__pycache__/
 env/
 messaging_app/messaging_app/__pycache__/
+messaging_app/chats/migrations/__pycache__/
+messaging_app/chats/__pycache__/
+messaging_app/db.sqlite3
+messaging_app/chats/migrations/0001_initial.py
