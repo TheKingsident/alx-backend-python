@@ -2,7 +2,7 @@ from rest_framework import serializers
 from .models import User, Conversation, Message
 
 class UserSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
+    full_name = serializers.CharField()
     class Meta:
         model = User
         fields = ['user_id', 'username', 'email', 'first_name', 'last_name', 'full_name', 'phone_number']
@@ -16,6 +16,11 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = ['message_id', 'sender', 'recipient', 'message_body', 'sent_at']
         read_only_fields = ['message_id', 'sent_at']
+    
+    def validate_message_body(self, value):
+        if not value.strip():
+            raise serializers.ValidationError("Message body cannot be empty.")
+        return value
 
 class ConversationSerializer(serializers.ModelSerializer):
     participants = UserSerializer(many=True, read_only=True)
