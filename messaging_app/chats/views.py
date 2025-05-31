@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from .models import User, Conversation, Message
 
@@ -18,6 +19,10 @@ class MessageViewSet(viewsets.ModelViewSet):
     """
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['conversation_id', 'sender_id', 'recipient_id']
+    ordering_fields = ['sent_at']
+    ordering = ['sent_at']
 
     def get_queryset(self):
         """
@@ -29,12 +34,18 @@ class MessageViewSet(viewsets.ModelViewSet):
         return Message.objects.none()
     
     def create(self, request, *args, **kwargs):
-        data = request.data.copy()
-        data['sender_id'] = request.user.id
-        serializer = self.get_serializer(data=data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=201)
+    
+    def get_serializer_context(self):
+        """
+        Add the request user to the serializer context.
+        """
+        context = super().get_serializer_context()
+        context.update({'request': self.request})
+        return context
 
 
 class ConversationViewSet(viewsets.ModelViewSet):
