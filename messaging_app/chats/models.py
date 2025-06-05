@@ -23,8 +23,8 @@ class Conversation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Conversation {self.id} between {self.participants.count()} users"
-    
+        return f"Conversation {self.conversation_id} between {self.participants.count()} users"
+
 class Message(models.Model):
     """
     Model representing a message in a conversation.
