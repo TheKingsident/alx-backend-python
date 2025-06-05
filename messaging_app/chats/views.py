@@ -25,7 +25,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     search_fields = ['conversation_id', 'sender_id', 'recipient_id']
     ordering_fields = ['sent_at']
     ordering = ['sent_at']
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsConversationParticipant]
 
     def get_queryset(self):
         """

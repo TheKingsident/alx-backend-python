@@ -1,6 +1,5 @@
 from chats.models import User, Conversation, Message
 from django.contrib.auth.hashers import make_password
-import uuid
 from django.utils import timezone
 
 # --- Create Users ---
