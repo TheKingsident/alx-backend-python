@@ -6,7 +6,7 @@ from django.utils import timezone
 # --- Create Users ---
 users = []
 for i in range(1, 6):
-    user = User.objects.create(
+    user, created = User.objects.get_or_create(
         username=f"user{i}",
         email=f"user{i}@example.com",
         password=make_password("password123"),
@@ -36,6 +36,7 @@ for conv in conversations:
         msg = Message.objects.create(
             sender_id=sender,
             recipient_id=recipient,
+            conversation_id=conv,
             message_body=f"Hello from {sender.username} to {recipient.username} in conversation {conv.conversation_id}",
             sent_at=timezone.now(),
         )

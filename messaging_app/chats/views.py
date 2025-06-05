@@ -4,6 +4,8 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from .models import User, Conversation, Message
+from rest_framework.permissions import IsAuthenticated
+from .permissions import IsConversationParticipant
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -23,6 +25,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     search_fields = ['conversation_id', 'sender_id', 'recipient_id']
     ordering_fields = ['sent_at']
     ordering = ['sent_at']
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """
@@ -54,6 +57,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     """
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
+    permission_classes = [IsAuthenticated, IsConversationParticipant]
     
     def get_queryset(self):
         """

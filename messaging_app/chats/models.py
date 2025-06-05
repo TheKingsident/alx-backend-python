@@ -30,13 +30,14 @@ class Message(models.Model):
     Model representing a message in a conversation.
     """
     message_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    conversation_id = models.ForeignKey(Conversation, related_name='messages', on_delete=models.CASCADE)
     sender_id = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
     recipient_id = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
     message_body = models.TextField()
     sent_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Message {self.id} from {self.sender.username} to {self.recipient.username}"
+        return f"Message {self.message_id} from {self.sender_id.username} to {self.recipient_id.username}"
     class Meta:
         ordering = ['sent_at']
         verbose_name = 'Message'

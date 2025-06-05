@@ -62,7 +62,7 @@ class ConversationSerializer(serializers.ModelSerializer):
         read_only_fields = ['conversation_id', 'created_at']
 
     def get_last_message(self, obj):
-        last_message = obj.message.last()
+        last_message = obj.messages.last()
         return (
             last_message.message_body[:30] + "..."
             if last_message else "No messages yet"
