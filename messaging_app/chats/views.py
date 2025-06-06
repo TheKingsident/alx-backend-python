@@ -34,6 +34,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         user = self.request.user
         qs = Message.objects.all()
         if self.action == 'list':
+            # Message.objects.filter(conversation_id__participants=user)
             qs = qs.filter(
                 conversation_id__participants=user
             ).distinct()
