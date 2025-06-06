@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.db import models
 from .models import User, Conversation, Message
 
 class UserSerializer(serializers.ModelSerializer):
@@ -20,7 +21,8 @@ class MessageSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(), write_only=True
     )
     conversation_id = serializers.PrimaryKeyRelatedField(
-        queryset=Conversation.objects.all(), write_only=True
+        queryset=Conversation.objects.all(), write_only=True,
+        allow_null=True, required=False
     )
 
     class Meta:
@@ -41,6 +43,15 @@ class MessageSerializer(serializers.ModelSerializer):
         conversation = validated_data.pop('conversation_id')
         sender = self.context['request'].user
 
+        if conversation is None:
+            conversations = Conversation.objects.filter(participants=sender).filter(participants=recipient)
+            conversations = conversations.annotate(num_participants=models.Count('participants')).filter(num_participants=2)
+            if conversations.exists():
+                conversation = conversations.first()
+            else:
+                conversation = Conversation.objects.create()
+                conversation.participants.set([sender, recipient])
+
         return Message.objects.create(
             sender_id=sender,
             recipient_id=recipient,
@@ -49,7 +60,7 @@ class MessageSerializer(serializers.ModelSerializer):
         )
 
 class ConversationSerializer(serializers.ModelSerializer):
-    participants = UserSerializer(many=True)
+    participants = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     messages = MessageSerializer(many=True, read_only=True)
     last_message = serializers.SerializerMethodField()
 
