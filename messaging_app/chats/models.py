@@ -13,6 +13,12 @@ class User(AbstractUser):
     user_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     phone_number = models.CharField(max_length=15, blank=True, null=True)
 
+    @property
+    def id(self):
+        """
+        Returns the user_id as the unique identifier.
+        """
+        return self.user_id
 
 class Conversation(models.Model):
     """
