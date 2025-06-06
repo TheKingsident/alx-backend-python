@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from .models import User, Conversation, Message
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsConversationParticipant
-
+from .pagination import CustomPagination
+from .filters import MessageFilter
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -26,6 +27,8 @@ class MessageViewSet(viewsets.ModelViewSet):
     ordering_fields = ['sent_at']
     ordering = ['sent_at']
     permission_classes = [IsAuthenticated, IsConversationParticipant]
+    pagination_class = CustomPagination
+    filterset_class = MessageFilter
 
     def get_queryset(self):
         """
