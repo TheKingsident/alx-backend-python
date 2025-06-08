@@ -40,7 +40,10 @@ class RestrictAccessByTimeMiddleware:
             return HttpResponse("Access restricted to business hours (6 PM - 9 PM).", status=403)
         
 class OffensiveLanguageMiddleware:
-    "that tracks number of chat messages sent by each ip address and implement a time based limit i.e 5 messages per minutes such that if a user exceeds the limit, it blocks further messaging and returns and error"
+    """
+    Middleware that tracks the number of chat messages sent by each IP address and enforces a time-based limit.
+    Allows up to 5 messages per minute per IP address. If the limit is exceeded, further messages are blocked and an error is returned.
+    """
     def __init__(self, get_response):
         self.get_response = get_response
         self.message_count = {}
@@ -70,3 +73,17 @@ class OffensiveLanguageMiddleware:
 
         response = self.get_response(request)
         return response
+
+class RolepermissionMiddleware:
+    """
+    If the user is not admin or moderator, it should return error 403
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        user = request.user if hasattr(request, 'user') else None
+        if user and (user.is_admin or user.is_moderator):
+            return self.get_response(request)
+        else:
+            return HttpResponse("Permission denied.", status=403)
