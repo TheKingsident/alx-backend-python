@@ -34,15 +34,14 @@ class RestrictAccessByTimeMiddleware:
 
     def __call__(self, request):
         current_hour = datetime.now().hour
-        if 18 <= current_hour < 21:  # Allow access only between 6 PM and 9 PM
+        if 18 <= current_hour < 21:
             return self.get_response(request)
         else:
-            return HttpResponse("Access restricted to business hours (6 PM - 9 PM).", status=403)
-        
+            return HttpResponse("Access restricted to hours between 6 PM - 9 PM.", status=403)
+
 class OffensiveLanguageMiddleware:
     """
-    Middleware that tracks the number of chat messages sent by each IP address and enforces a time-based limit.
-    Allows up to 5 messages per minute per IP address. If the limit is exceeded, further messages are blocked and an error is returned.
+    Limits each IP to 5 messages per minute.
     """
     def __init__(self, get_response):
         self.get_response = get_response
