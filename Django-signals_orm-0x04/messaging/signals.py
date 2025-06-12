@@ -10,8 +10,8 @@ def create_notification(sender, instance, created, **kwargs):
     if created:
         from .models import Notification
         Notification.objects.create(
-            user=instance.recipient_id,
+            user=instance.receiver,
             message=instance,
             is_read=False
         )
-        print(f"Notification created for {instance.recipient_id.username} for message {instance.message_id}")
+        print(f"Notification created for {instance.receiver.username} for message {instance.message_id}")
