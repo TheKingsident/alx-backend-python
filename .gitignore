@@ -30,3 +30,12 @@ Django-Middleware-0x03/0x03-MessagingApp-Django/messaging_app/__pycache__/
 Django-Middleware-0x03/0x03-MessagingApp-Django/chats/middleware/__pycache__/
 Django-Middleware-0x03/0x03-MessagingApp-Django/chats/__pycache__/
 Django-Middleware-0x03/requests.log
+Django-signals_orm-0x04/chats/__pycache__/
+Django-signals_orm-0x04/chats/management/
+Django-signals_orm-0x04/chats/middleware/__pycache__/
+Django-signals_orm-0x04/chats/migrations/__pycache__/
+Django-signals_orm-0x04/messaging_app/__pycache__/
+Django-signals_orm-0x04/messaging/__pycache__/
+Django-signals_orm-0x04/messaging/management/__pycache__/
+Django-signals_orm-0x04/messaging/migrations/__pycache__/
+Django-signals_orm-0x04/messaging/middleware/__pycache__/
