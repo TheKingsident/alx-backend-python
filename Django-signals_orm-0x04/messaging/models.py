@@ -49,3 +49,15 @@ class Message(models.Model):
         verbose_name = 'Message'
         verbose_name_plural = 'Messages'
 
+class Notification(models.Model):
+    """
+    Model representing a notification for a user.
+    """
+    notification_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, related_name='notifications', on_delete=models.CASCADE)
+    message = models.ForeignKey(Message, related_name='notifications', on_delete=models.CASCADE)
+    is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Notification {self.notification_id} for {self.user.username}"

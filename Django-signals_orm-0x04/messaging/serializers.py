@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.db import models
-from .models import User, Conversation, Message
+from .models import User, Conversation, Message, Notification
 
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source='get_full_name', read_only=True)
@@ -78,3 +78,15 @@ class ConversationSerializer(serializers.ModelSerializer):
             last_message.message_body[:30] + "..."
             if last_message else "No messages yet"
         )
+
+class NotificationSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    message = MessageSerializer(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = ['notification_id', 'user', 'message', 'is_read', 'timestamp']
+        read_only_fields = ['notification_id', 'timestamp']
+    
+    def create(self, validated_data):
+        return Notification.objects.create(**validated_data)

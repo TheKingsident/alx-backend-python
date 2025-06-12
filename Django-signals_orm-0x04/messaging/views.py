@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
+from .serializers import UserSerializer, ConversationSerializer, MessageSerializer, NotificationSerializer
 from rest_framework import viewsets, filters, status
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
-from .models import User, Conversation, Message
+from .models import User, Conversation, Message, Notification
 from rest_framework.permissions import IsAuthenticated
 from .permissions import IsConversationParticipant
 from .pagination import CustomPagination
@@ -94,3 +94,27 @@ class ConversationViewSet(viewsets.ModelViewSet):
         if request.user not in conversation.participants.all():
             return Response({"detail": "You do not have permission to update this conversation."}, status=status.HTTP_403_FORBIDDEN)
         return super().update(request, *args, **kwargs)
+
+class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet for managing notifications.
+    """
+    queryset = Notification.objects.all()
+    serializer_class = NotificationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Override to filter notifications by the authenticated user.
+        """
+        user = self.request.user
+        return Notification.objects.filter(user=user).order_by('-timestamp')
+    
+    def mark_as_read(self, request, *args, **kwargs):
+        notification = self.get_object()
+        if notification.user != request.user:
+            return Response({"detail": "You do not have permission to mark this notification as read."}, status=status.HTTP_403_FORBIDDEN)
+        
+        notification.is_read = True
+        notification.save()
+        return Response({"detail": "Notification marked as read."}, status=status.HTTP_200_OK)
