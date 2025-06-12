@@ -31,7 +31,8 @@ def update_message_history(sender, instance, **kwargs):
                         'edited': original_message.edited
                     },
                     action = 'updated',
-                    timestamp = original_message.timestamp
+                    edited_at = original_message.timestamp,
+                    edited_by = instance.sender
                 )
                 instance.edited = True
         except Message.DoesNotExist:

@@ -72,7 +72,8 @@ class MessageHistory(models.Model):
     message = models.ForeignKey(Message, related_name='history', on_delete=models.CASCADE)
     previous_content = models.JSONField()
     action = models.CharField(max_length=50)
-    timestamp = models.DateTimeField(auto_now_add=True)
+    edited_at = models.DateTimeField(auto_now_add=True)
+    edited_by = models.ForeignKey(User, related_name='edited_messages', on_delete=models.CASCADE, default=None, null=True)
 
     def __str__(self):
         return f"History {self.history_id} for Message {self.message.message_id}"
