@@ -83,6 +83,7 @@ class MessageViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def unread(self, request):
+    #   .only('message_id', 'sender', 'receiver', 'content', 'timestamp')
         user = request.user
         unread_messages = Message.unread.unread_for_user(user)
         serializer = self.get_serializer(unread_messages, many=True)
