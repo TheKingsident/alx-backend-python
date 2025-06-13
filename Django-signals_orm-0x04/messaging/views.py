@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from .models import User, Conversation, Message, Notification
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from rest_framework.decorators import action
 from .permissions import IsConversationParticipant
 from .pagination import CustomPagination
 from .filters import MessageFilter
@@ -16,6 +17,15 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    @action(detail=False, methods=['delete'], permission_classes=[IsAuthenticated])
+    def delete_user(self, request):
+        """
+        Endpoint to delete the authenticated user's account.
+        """
+        user = request.user
+        user.delete()
+        return Response({"detail": "User account deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 class MessageViewSet(viewsets.ModelViewSet):
     """
@@ -119,14 +129,3 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         notification.is_read = True
         notification.save()
         return Response({"detail": "Notification marked as read."}, status=status.HTTP_200_OK)
-    
-class DeleteUserView(APIView):
-    """
-    View for a user to delete their account.
-    """
-    permission_classes = [IsAuthenticated]
-
-    def delete(self, request):
-        user = request.user
-        user.delete()
-        return Response({"detail": "User account deleted successfully."}, status=status.HTTP_204_NO_CONTENT)

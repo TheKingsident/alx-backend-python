@@ -60,3 +60,5 @@
 2025-06-13 11:37:31.976398 - User: user2 - Path: /api/users/
 2025-06-13 11:37:49.470020 - User: user2 - Path: /api/users/delete/
 2025-06-13 11:39:59.151747 - User: user2 - Path: /api/users/8bd84c68-ff7f-4105-96d9-ae36b3ef401e/delete/
+2025-06-13 11:57:36.510777 - User: user2 - Path: /api/users/
+2025-06-13 11:57:50.022405 - User: user2 - Path: /api/users/delete_user/
