@@ -47,6 +47,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         Override to filter messages by the authenticated user's conversations.
         """
         user = self.request.user
+        # ["sender=request.user"]
         if user.is_authenticated:
 
             return (
