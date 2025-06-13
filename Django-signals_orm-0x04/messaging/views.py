@@ -11,6 +11,8 @@ from .permissions import IsConversationParticipant
 from .pagination import CustomPagination
 from .filters import MessageFilter
 from django.db.models import Q
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -103,6 +105,12 @@ class MessageViewSet(viewsets.ModelViewSet):
         context.update({'request': self.request})
         return context
 
+    @method_decorator(cache_page(60))
+    def list(self, request, *args, **kwargs):
+        """
+        List messages (cached for 60 seconds).
+        """
+        return super().list(request, *args, **kwargs)
 
 class ConversationViewSet(viewsets.ModelViewSet):
     """
