@@ -80,6 +80,13 @@ class MessageViewSet(viewsets.ModelViewSet):
             thread['replies'].append(MessageViewSet.get_thread(reply))
 
         return thread
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def unread(self, request):
+        user = request.user
+        unread_messages = Message.unread.for_user(user)
+        serializer = self.get_serializer(unread_messages, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

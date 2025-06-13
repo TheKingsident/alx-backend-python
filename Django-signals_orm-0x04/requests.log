@@ -85,3 +85,8 @@
 2025-06-13 13:03:27.878668 - User: user2 - Path: /api/messages/
 2025-06-13 13:03:33.489807 - User: user2 - Path: /api-auth/logout/
 2025-06-13 13:03:33.517995 - User: Anonymous - Path: /api/messages/
+2025-06-13 18:12:51.021375 - User: Anonymous - Path: /api-auth/login/
+2025-06-13 18:13:00.245405 - User: Anonymous - Path: /api-auth/login/
+2025-06-13 18:13:01.135952 - User: user2 - Path: /api/messages/
+2025-06-13 19:52:05.599243 - User: user2 - Path: /api/messages/
+2025-06-13 19:52:13.573789 - User: user2 - Path: /api/messages/unread/

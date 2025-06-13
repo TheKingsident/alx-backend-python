@@ -31,6 +31,10 @@ class Conversation(models.Model):
     def __str__(self):
         return f"Conversation {self.conversation_id} between {self.participants.count()} users"
 
+class UnreadMessagesManager(models.Manager):
+    def for_user(self, user):
+        return self.get_queryset().filter(receiver=user, read=False).only('message_id', 'sender', 'content', 'timestamp')
+
 class Message(models.Model):
     """
     Model representing a message in a conversation.
@@ -43,6 +47,10 @@ class Message(models.Model):
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
     edited = models.BooleanField(default=False)
+    read = models.BooleanField(default=False)
+
+    objects = models.Manager()
+    unread = UnreadMessagesManager()
 
     def __str__(self):
         return f"Message {self.message_id} from {self.sender.username} to {self.receiver.username}"
