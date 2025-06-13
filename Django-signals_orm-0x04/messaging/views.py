@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.response import Response
 from .models import User, Conversation, Message, Notification
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from .permissions import IsConversationParticipant
 from .pagination import CustomPagination
 from .filters import MessageFilter
@@ -24,8 +25,8 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['conversation_id', 'sender_id', 'recipient_id']
-    ordering_fields = ['sent_at']
-    ordering = ['sent_at']
+    ordering_fields = ['timestamp']
+    ordering = ['timestamp']
     permission_classes = [IsAuthenticated, IsConversationParticipant]
     pagination_class = CustomPagination
     filterset_class = MessageFilter
@@ -118,3 +119,14 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         notification.is_read = True
         notification.save()
         return Response({"detail": "Notification marked as read."}, status=status.HTTP_200_OK)
+    
+class DeleteUserView(APIView):
+    """
+    View for a user to delete their account.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+        user.delete()
+        return Response({"detail": "User account deleted successfully."}, status=status.HTTP_204_NO_CONTENT)

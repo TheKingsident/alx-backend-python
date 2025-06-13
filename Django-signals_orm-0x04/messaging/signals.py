@@ -1,5 +1,6 @@
-from .models import Message, Notification, MessageHistory
-from django.db.models.signals import post_save, pre_save
+from .models import Message, Notification, MessageHistory, User
+from django.db.models.signals import post_save, pre_save, post_delete
+from django.db.models import Q
 from django.dispatch import receiver
 
 @receiver(post_save, sender=Message)
@@ -37,3 +38,11 @@ def update_message_history(sender, instance, **kwargs):
                 instance.edited = True
         except Message.DoesNotExist:
             pass
+
+@receiver(post_delete, sender=User)
+def delete_user_related_data(sender, instance, **kwargs):
+    """
+    Signal to delete all messages, notifications, and message histories related to a user when the user is deleted.
+    """
+    Message.objects.filter(Q(sender=instance) | Q(receiver=instance)).delete()
+    Notification.objects.filter(user=instance).delete()

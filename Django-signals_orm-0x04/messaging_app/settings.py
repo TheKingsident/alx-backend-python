@@ -53,7 +53,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'messaging.middleware.RequestLoggingMiddleware',
     #'messaging.middleware.RestrictAccessByTimeMiddleware',
-    'messaging.middleware.OffensiveLanguageMiddleware',
+    #'messaging.middleware.OffensiveLanguageMiddleware',
     #'messaging.middleware.RolepermissionMiddleware',
 ]
 

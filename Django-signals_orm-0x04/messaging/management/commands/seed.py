@@ -19,7 +19,7 @@ print(f"Created {len(users)} users.")
 # --- Create Conversations ---
 conversations = []
 for i in range(2):
-    conv = Conversation.objects.create()
+    conv, created = Conversation.objects.get_or_create()
     # Add 2-3 participants per conversation
     conv.participants.set(users[i:i+3])
     conversations.append(conv)
@@ -31,12 +31,12 @@ for conv in conversations:
     participants = list(conv.participants.all())
     for j in range(3):
         sender = participants[j % len(participants)]
-        recipient = participants[(j + 1) % len(participants)]
-        msg = Message.objects.create(
-            sender_id=sender,
-            recipient_id=recipient,
+        receiver = participants[(j + 1) % len(participants)]
+        msg, created = Message.objects.get_or_create(
+            sender=sender,
+            receiver=receiver,
             conversation_id=conv,
-            content=f"Hello from {sender.username} to {recipient.username} in conversation {conv.conversation_id}",
+            content=f"Hello from {sender.username} to {receiver.username} in conversation {conv.conversation_id}!",
             timestamp=timezone.now(),
         )
         messages.append(msg)

@@ -8,16 +8,21 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'user_id', 'username', 'email', 'first_name', 'last_name', 'full_name',
+            'user_id', 'email', 'first_name', 'last_name', 'full_name',
             'phone_number'
         ]
         read_only_fields = ['user_id']
 
-class MessageSerializer(serializers.ModelSerializer):
-    sender = UserSerializer(read_only=True, source='sender_id')
-    recipient = UserSerializer(read_only=True, source='recipient_id')
+class MinimalUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['user_id', 'first_name']
 
-    recipient_id = serializers.PrimaryKeyRelatedField(
+class MessageSerializer(serializers.ModelSerializer):
+    sender = MinimalUserSerializer(read_only=True)
+    receiver = MinimalUserSerializer(read_only=True)
+
+    receiver_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), write_only=True
     )
     conversation_id = serializers.PrimaryKeyRelatedField(
@@ -28,33 +33,33 @@ class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = [
-            'message_id', 'sender', 'recipient', 'recipient_id', 'conversation_id',
-            'message_body', 'sent_at',
+            'message_id', 'sender', 'receiver', 'receiver_id', 'conversation_id',
+            'content', 'timestamp',
         ]
-        read_only_fields = ['message_id', 'sent_at']
+        read_only_fields = ['message_id', 'timestamp']
 
-    def validate_message_body(self, value):
+    def validate_content(self, value):
         if not value.strip():
-            raise serializers.ValidationError("Message body cannot be empty.")
+            raise serializers.ValidationError("Message content cannot be empty.")
         return value
 
     def create(self, validated_data):
-        recipient = validated_data.pop('recipient_id')
-        conversation = validated_data.pop('conversation_id')
+        receiver = validated_data.pop('receiver_id')
+        conversation = validated_data.pop('conversation_id', None)
         sender = self.context['request'].user
 
         if conversation is None:
-            conversations = Conversation.objects.filter(participants=sender).filter(participants=recipient)
+            conversations = Conversation.objects.filter(participants=sender).filter(participants=receiver)
             conversations = conversations.annotate(num_participants=models.Count('participants')).filter(num_participants=2)
             if conversations.exists():
                 conversation = conversations.first()
             else:
                 conversation = Conversation.objects.create()
-                conversation.participants.set([sender, recipient])
+                conversation.participants.set([sender, receiver])
 
         return Message.objects.create(
-            sender_id=sender,
-            recipient_id=recipient,
+            sender=sender,
+            receiver=receiver,
             conversation_id=conversation,
             **validated_data
         )
@@ -75,12 +80,12 @@ class ConversationSerializer(serializers.ModelSerializer):
     def get_last_message(self, obj):
         last_message = obj.messages.last()
         return (
-            last_message.message_body[:30] + "..."
+            last_message.content[:30] + "..."
             if last_message else "No messages yet"
         )
 
 class NotificationSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
+    user = MinimalUserSerializer(read_only=True)
     message = MessageSerializer(read_only=True)
 
     class Meta:
