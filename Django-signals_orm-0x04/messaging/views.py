@@ -10,6 +10,7 @@ from rest_framework.decorators import action
 from .permissions import IsConversationParticipant
 from .pagination import CustomPagination
 from .filters import MessageFilter
+from django.db.models import Q
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -46,13 +47,38 @@ class MessageViewSet(viewsets.ModelViewSet):
         Override to filter messages by the authenticated user's conversations.
         """
         user = self.request.user
-        qs = Message.objects.all()
-        if self.action == 'list':
-            # Message.objects.filter(conversation_id__participants=user)
-            qs = qs.filter(
-                conversation_id__participants=user
-            ).distinct()
-        return qs
+        if user.is_authenticated:
+
+            return (
+                Message.objects.filter(
+                    Q(sender=user) | Q(receiver=user)
+                ).select_related(
+                    'sender', 'receiver', 'parent_message'
+                ).prefetch_related(
+                    'replies'
+                ).order_by(
+                    'timestamp'
+                )
+            )
+        return Message.objects.none()
+    
+    @staticmethod
+    def get_thread(message):
+        """
+        Fetch replies to a message
+        """
+        thread = {
+            'message_id': message.message_id,
+            'content': message.content,
+            'sender': message.sender.username,
+            'timestamp': message.timestamp,
+            'replies': []
+        }
+
+        for reply in message.replies.all().order_by('timestamp'):
+            thread['replies'].append(MessageViewSet.get_thread(reply))
+
+        return thread
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
