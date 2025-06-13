@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
+from .managers import UnreadMessagesManager
 
 class User(AbstractUser):
     """
@@ -30,10 +31,6 @@ class Conversation(models.Model):
 
     def __str__(self):
         return f"Conversation {self.conversation_id} between {self.participants.count()} users"
-
-class UnreadMessagesManager(models.Manager):
-    def for_user(self, user):
-        return self.get_queryset().filter(receiver=user, read=False).only('message_id', 'sender', 'content', 'timestamp')
 
 class Message(models.Model):
     """
