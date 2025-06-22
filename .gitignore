@@ -40,3 +40,4 @@ Django-signals_orm-0x04/messaging/management/__pycache__/
 Django-signals_orm-0x04/messaging/migrations/__pycache__/
 Django-signals_orm-0x04/messaging/middleware/__pycache__/
 messaging_app/venv/
+messaging_app/.env
