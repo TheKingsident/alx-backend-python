@@ -6,12 +6,8 @@ kubectl scale deployment messaging-app --replicas=3
 
 # Wait for pods to be ready
 echo "⏳ Waiting for all pods to be ready..."
-sleep 5
+sleep 10
 kubectl get pods
-
-# Load test using wrk
-echo "🚀 Running load test using wrk..."
-MINIKUBE_URL=$(minikube service messaging-service --url)
 
 # Install wrk if not installed
 if ! command -v wrk &> /dev/null; then
@@ -19,7 +15,11 @@ if ! command -v wrk &> /dev/null; then
     sudo apt update && sudo apt install -y wrk
 fi
 
-wrk -t4 -c20 -d10s "$MINIKUBE_URL"
+# Define Ingress URL (your messaging.local must resolve to minikube IP)
+INGRESS_URL="http://messaging.local/api/"
+
+echo "🚀 Running load test using wrk at $INGRESS_URL..."
+wrk -t4 -c20 -d10s "$INGRESS_URL"
 
 # Show resource usage
 echo "📊 Monitoring resource usage..."

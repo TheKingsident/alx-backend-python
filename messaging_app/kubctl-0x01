@@ -1,26 +1,39 @@
 #!/bin/bash
 
-# Scale deployment to 3 replicas
-echo "🔁 Scaling deployment to 3 replicas..."
+set -e
+
+echo "📦 Scaling deployment 'messaging-app' to 3 replicas..."
 kubectl scale deployment messaging-app --replicas=3
 
-# Wait for pods to be ready
+echo "🔍 Verifying running pods..."
+kubectl get pods -l app=messaging
+
 echo "⏳ Waiting for all pods to be ready..."
+kubectl wait --for=condition=ready pod -l app=messaging --timeout=120s
+
+# Use a custom port to avoid conflicts
+LOCAL_PORT=8081
+TARGET_PORT=8000
+
+echo "🚀 Starting port-forward on localhost:$LOCAL_PORT..."
+kubectl port-forward service/messaging-service $LOCAL_PORT:$TARGET_PORT > /dev/null 2>&1 &
+PORT_FORWARD_PID=$!
+
+# Wait a few seconds for the forward to establish
 sleep 5
-kubectl get pods
 
-# Load test using wrk
-echo "🚀 Running load test using wrk..."
-MINIKUBE_URL=$(minikube service messaging-service --url)
-
-# Install wrk if not installed
-if ! command -v wrk &> /dev/null; then
-    echo "📦 wrk not found, installing..."
-    sudo apt update && sudo apt install -y wrk
+# Check if the port is open
+if lsof -i tcp:$LOCAL_PORT >/dev/null 2>&1; then
+  echo "🔥 Running wrk load test on http://localhost:$LOCAL_PORT/ ..."
+  wrk -t4 -c50 -d10s http://localhost:$LOCAL_PORT/
+else
+  echo "❌ Port-forwarding failed. Skipping wrk load test."
 fi
 
-wrk -t4 -c20 -d10s "$MINIKUBE_URL"
+# Kill port-forward if it exists
+if ps -p $PORT_FORWARD_PID > /dev/null; then
+  kill $PORT_FORWARD_PID
+fi
 
-# Show resource usage
-echo "📊 Monitoring resource usage..."
-kubectl top pods
+echo "📊 Resource usage:"
+kubectl top pods || echo "⚠️ 'kubectl top' failed. Is metrics-server enabled?"

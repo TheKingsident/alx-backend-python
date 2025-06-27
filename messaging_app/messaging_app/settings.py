@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-tws$&u($t2jn9!#qfg03ejvrg8efj%d66eo6c5ofzw1+o(cc88
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['messaging.local', 'localhost', '127.0.0.1']
 
 
 import os
