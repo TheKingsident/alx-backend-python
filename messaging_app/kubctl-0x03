@@ -1,0 +1,14 @@
+#!/bin/bash
+
+echo "🚀 Applying updated blue deployment (version 2.0)..."
+kubectl apply -f blue_deployment.yaml
+
+echo "📈 Monitoring rolling update progress..."
+kubectl rollout status deployment/messaging-app
+
+echo "🌐 Starting curl requests to test for downtime..."
+echo "Press [CTRL+C] to stop testing"
+while true; do
+    curl -s -o /dev/null -w "%{http_code} " http://localhost:8081/
+    sleep 1
+done
