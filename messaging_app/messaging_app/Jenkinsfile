@@ -14,15 +14,14 @@ pipeline {
             steps {
                 sh '''
                     cd messaging_app
-                    export DJANGO_SETTINGS_MODULE=messaging_app.settings
-                    pytest --junitxml=report.xml --verbose
+                    pytest --junitxml=report.xml
                 '''
             }
         }
 
         stage('Publish Report') {
             steps {
-                echo 'Test execution completed'
+                junit 'messaging_app/report.xml'
             }
         }
     }
@@ -30,7 +29,6 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
-            junit allowEmptyResults: true, testResults: 'messaging_app/report.xml'
         }
         success {
             echo 'Build succeeded!'
