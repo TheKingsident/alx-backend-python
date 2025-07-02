@@ -34,6 +34,45 @@ pipeline {
                 echo 'Test execution completed'
             }
         }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-creds-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh '''
+                            cd messaging_app
+                            docker build -t $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER} .
+                            docker tag $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER} $DOCKER_USERNAME/messaging-app:latest
+                            
+                            echo "Docker image built successfully:"
+                            echo "- $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER}"
+                            echo "- $DOCKER_USERNAME/messaging-app:latest"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-creds-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh '''
+                            # Login to Docker Hub
+                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                            
+                            # Push images to Docker Hub
+                            docker push $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER}
+                            docker push $DOCKER_USERNAME/messaging-app:latest
+                            
+                            echo "Docker images pushed successfully:"
+                            echo "- $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER}"
+                            echo "- $DOCKER_USERNAME/messaging-app:latest"
+                        '''
+                    }
+                }
+            }
+        }
     }
 
     post {
