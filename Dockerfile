@@ -10,7 +10,8 @@ RUN apt-get update && apt-get install -y \
 # Create a virtual environment and install pytest
 RUN python3 -m venv /opt/jenkins-venv \
   && /opt/jenkins-venv/bin/pip install --upgrade pip \
-  && /opt/jenkins-venv/bin/pip install pytest
+  && /opt/jenkins-venv/bin/pip install pytest \
+  && chown -R jenkins:jenkins /opt/jenkins-venv
 
 ENV PATH="/opt/jenkins-venv/bin:$PATH"
 

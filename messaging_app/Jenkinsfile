@@ -10,16 +10,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                    # Use the container's existing virtual environment
-                    /opt/jenkins-venv/bin/pip install --upgrade pip
-                    /opt/jenkins-venv/bin/pip install -r messaging_app/requirements.txt
-                '''
-            }
-        }
-
         stage('Run Tests') {
             steps {
                 sh '''
