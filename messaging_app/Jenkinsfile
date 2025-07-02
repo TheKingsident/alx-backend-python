@@ -10,12 +10,21 @@ pipeline {
             }
         }
 
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    cd messaging_app
+                    /opt/jenkins-venv/bin/pip install -r requirements.txt
+                '''
+            }
+        }
+
         stage('Run Tests') {
             steps {
                 sh '''
                     cd messaging_app
                     export DJANGO_SETTINGS_MODULE=messaging_app.settings
-                    pytest --junitxml=report.xml --verbose
+                    /opt/jenkins-venv/bin/pytest --junitxml=report.xml --verbose
                 '''
             }
         }
