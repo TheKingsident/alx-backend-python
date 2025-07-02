@@ -10,13 +10,11 @@ pipeline {
             }
         }
 
-        stage('Set up Python Environment') {
+        stage('Install Dependencies') {
             steps {
                 sh '''
-                    python3 -m venv $VENV_PATH
-                    . $VENV_PATH/bin/activate
-                    pip3 install --upgrade pip
-                    pip3 install -r messaging_app/requirements.txt
+                    cd messaging_app
+                    /opt/jenkins-venv/bin/pip3 install -r requirements.txt
                 '''
             }
         }
@@ -25,14 +23,54 @@ pipeline {
             steps {
                 sh '''
                     cd messaging_app
-                    pytest --junitxml=report.xml
+                    export DJANGO_SETTINGS_MODULE=messaging_app.settings
+                    /opt/jenkins-venv/bin/pytest --junitxml=report.xml --verbose
                 '''
             }
         }
 
         stage('Publish Report') {
             steps {
-                junit 'messaging_app/report.xml'
+                echo 'Test execution completed'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-creds-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh '''
+                            cd messaging_app
+                            docker build -t $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER} .
+                            docker tag $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER} $DOCKER_USERNAME/messaging-app:latest
+                            
+                            echo "Docker image built successfully:"
+                            echo "- $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER}"
+                            echo "- $DOCKER_USERNAME/messaging-app:latest"
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'docker-creds-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh '''
+                            # Login to Docker Hub
+                            echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+                            
+                            # Push images to Docker Hub
+                            docker push $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER}
+                            docker push $DOCKER_USERNAME/messaging-app:latest
+                            
+                            echo "Docker images pushed successfully:"
+                            echo "- $DOCKER_USERNAME/messaging-app:${BUILD_NUMBER}"
+                            echo "- $DOCKER_USERNAME/messaging-app:latest"
+                        '''
+                    }
+                }
             }
         }
     }
@@ -40,6 +78,7 @@ pipeline {
     post {
         always {
             echo 'Cleaning up...'
+            junit allowEmptyResults: true, testResults: 'messaging_app/report.xml'
         }
         success {
             echo 'Build succeeded!'
