@@ -1,17 +1,18 @@
-FROM python:3.10
+FROM jenkins/jenkins:lts
 
-# Prevent .pyc files and enable real-time logs
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+USER root
 
-WORKDIR /app
+# Install Python and system packages needed to build mysqlclient
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip python3-venv \
+    pkg-config default-libmysqlclient-dev build-essential
 
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
+# Create a virtual environment and install pytest
+RUN python3 -m venv /opt/jenkins-venv \
+  && /opt/jenkins-venv/bin/pip install --upgrade pip \
+  && /opt/jenkins-venv/bin/pip install pytest \
+  && chown -R jenkins:jenkins /opt/jenkins-venv
 
-COPY . .
+ENV PATH="/opt/jenkins-venv/bin:$PATH"
 
-# docker run -p 8000:8000 <image_name>
-EXPOSE 8000
-
-CMD ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+USER jenkins

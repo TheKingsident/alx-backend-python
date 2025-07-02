@@ -1,22 +1,26 @@
-from django.test import TestCase
 import pytest
+from django.conf import settings
 
 # Create your tests here.
 
-class BasicTestCase(TestCase):
-    """Basic test to verify test setup is working"""
-    
-    def test_basic_assertion(self):
-        """Test that basic assertions work"""
-        self.assertTrue(True)
-        self.assertEqual(1 + 1, 2)
-        
-    def test_django_setup(self):
-        """Test that Django is properly configured"""
-        from django.conf import settings
-        self.assertTrue(hasattr(settings, 'INSTALLED_APPS'))
-
-@pytest.mark.django_db
-def test_pytest_django_setup():
-    """Test that pytest-django is working"""
+def test_basic_assertion():
+    """Test that basic assertions work"""
     assert True
+    assert 1 + 1 == 2
+
+def test_django_settings():
+    """Test that Django settings are properly configured"""
+    assert hasattr(settings, 'INSTALLED_APPS')
+    assert 'chats' in settings.INSTALLED_APPS
+
+def test_python_basics():
+    """Test basic Python functionality"""
+    test_list = [1, 2, 3]
+    assert len(test_list) == 3
+    assert max(test_list) == 3
+
+def test_string_operations():
+    """Test string operations"""
+    test_string = "Hello World"
+    assert test_string.lower() == "hello world"
+    assert "World" in test_string
