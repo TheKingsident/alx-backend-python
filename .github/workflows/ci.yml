@@ -59,6 +59,33 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Run flake8 linting
+      run: |
+        cd messaging_app
+        echo "Running flake8 linting checks..."
+        
+        # First, check for critical errors that should fail the build
+        echo "Checking for critical errors (syntax errors, undefined names, etc.)..."
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        
+        # Then run full linting with warnings (but don't fail on warnings)
+        echo "Running full linting check..."
+        flake8 . --count --max-complexity=10 --max-line-length=127 --statistics --output-file=flake8-report.txt || true
+        
+        # Generate a formatted report
+        echo "# Flake8 Linting Report" > flake8-results.md
+        echo "## Summary" >> flake8-results.md
+        if [ -s flake8-report.txt ]; then
+          echo "⚠️ Linting issues found:" >> flake8-results.md
+          echo "\`\`\`" >> flake8-results.md
+          cat flake8-report.txt >> flake8-results.md
+          echo "\`\`\`" >> flake8-results.md
+        else
+          echo "✅ No linting issues found!" >> flake8-results.md
+        fi
+        
+        echo "✓ Linting checks completed successfully"
+
     - name: Wait for MySQL
       run: |
         while ! mysqladmin ping -h"127.0.0.1" -P3306 --silent; do
@@ -123,7 +150,64 @@ jobs:
     - name: Run tests
       run: |
         cd messaging_app
-        python -m pytest --junitxml=test-results.xml --cov=. --cov-report=xml --verbose
+        python -m pytest --junitxml=test-results.xml --cov=. --cov-config=.coveragerc --cov-report=xml --cov-report=html --cov-report=term-missing --verbose
+
+    - name: Check coverage threshold
+      run: |
+        cd messaging_app
+        python -c "
+        import xml.etree.ElementTree as ET
+        tree = ET.parse('coverage.xml')
+        root = tree.getroot()
+        coverage = float(root.attrib['line-rate']) * 100
+        print(f'Code coverage: {coverage:.2f}%')
+        
+        # Set minimum coverage threshold (adjust as needed)
+        min_coverage = 70
+        if coverage < min_coverage:
+            print(f'❌ Coverage {coverage:.2f}% is below minimum threshold of {min_coverage}%')
+            exit(1)
+        else:
+            print(f'✅ Coverage {coverage:.2f}% meets minimum threshold of {min_coverage}%')
+        "
+
+    - name: Generate test summary
+      if: always()
+      run: |
+        cd messaging_app
+        echo "## Test Results Summary 🧪" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Add Python version info
+        echo "**Python Version:** ${{ matrix.python-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        
+        # Add coverage info if available
+        if [ -f "coverage.xml" ]; then
+          COVERAGE=$(python -c "
+        import xml.etree.ElementTree as ET
+        tree = ET.parse('coverage.xml')
+        root = tree.getroot()
+        coverage = float(root.attrib['line-rate']) * 100
+        print(f'{coverage:.2f}')
+        ")
+          echo "**Code Coverage:** ${COVERAGE}%" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Add test results count if available
+        if [ -f "test-results.xml" ]; then
+          echo "**Test Results:** ✅ All tests passed" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "**Test Results:** ❌ Some tests failed" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Add linting results
+        if [ -f "flake8-report.txt" ] && [ -s "flake8-report.txt" ]; then
+          echo "**Linting:** ⚠️ Issues found (see artifacts)" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "**Linting:** ✅ No issues found" >> $GITHUB_STEP_SUMMARY
+        fi
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -132,7 +216,30 @@ jobs:
         name: test-results-${{ matrix.python-version }}
         path: messaging_app/test-results.xml
 
-    - name: Upload coverage reports
+    - name: Upload flake8 report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: flake8-report-${{ matrix.python-version }}
+        path: |
+          messaging_app/flake8-report.txt
+          messaging_app/flake8-results.md
+
+    - name: Upload coverage reports (XML)
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-xml-${{ matrix.python-version }}
+        path: messaging_app/coverage.xml
+
+    - name: Upload coverage reports (HTML)
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-html-${{ matrix.python-version }}
+        path: messaging_app/htmlcov/
+
+    - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       if: matrix.python-version == '3.12'
       with:

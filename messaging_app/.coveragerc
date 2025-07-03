@@ -1,11 +1,4 @@
-[pytest]
-python_files = tests.py test_*.py *_tests.py
-python_classes = Test*
-python_functions = test_*
-addopts = --tb=short --strict-markers --cov-config=.coveragerc
-testpaths = .
-
-[coverage:run]
+[run]
 source = .
 omit = 
     */venv/*
@@ -16,16 +9,27 @@ omit =
     */settings/*
     */__pycache__/*
     .venv/*
+    */admin.py
+    */apps.py
+    */wsgi.py
+    */asgi.py
 
-[coverage:report]
+[report]
 exclude_lines =
     pragma: no cover
     def __repr__
     raise AssertionError
     raise NotImplementedError
     if __name__ == .__main__.:
+    class .*\bProtocol\):
+    @(abc\.)?abstractmethod
 show_missing = True
 skip_covered = False
+precision = 2
 
-[coverage:html]
+[html]
 directory = htmlcov
+title = Messaging App Coverage Report
+
+[xml]
+output = coverage.xml
