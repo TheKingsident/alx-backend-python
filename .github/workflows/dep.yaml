@@ -48,7 +48,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: ./messaging_app
-        file: ./messaging_app/Dockerfile
+        file: ./messaging_app/Dockerfile.web
         platforms: linux/amd64,linux/arm64
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
