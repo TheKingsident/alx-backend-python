@@ -1,6 +1,7 @@
 """
 Test settings for GitHub Actions CI/CD
 """
+from .settings import *  # noqa: F403,F401
 import os
 
 # Override database settings for testing
