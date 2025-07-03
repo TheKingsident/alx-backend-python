@@ -36,3 +36,24 @@ class DatabaseTestCase(TestCase):
             cursor.execute("SELECT 1")
             result = cursor.fetchone()
             self.assertEqual(result[0], 1)
+    
+    def test_custom_user_model(self):
+        """Test that our custom user model works"""
+        from chats.models import User
+        
+        # Create a test user
+        user = User.objects.create_user(
+            username='testuser',
+            email='test@example.com',
+            password='testpass123'
+        )
+        
+        # Test that the user was created properly
+        self.assertEqual(user.username, 'testuser')
+        self.assertEqual(user.email, 'test@example.com')
+        self.assertTrue(user.check_password('testpass123'))
+        self.assertIsNotNone(user.user_id)
+        
+        # Test that we can retrieve the user
+        retrieved_user = User.objects.get(username='testuser')
+        self.assertEqual(retrieved_user.user_id, user.user_id)

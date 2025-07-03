@@ -101,6 +101,23 @@ jobs:
         else:
             print('✗ django_content_type table missing')
             exit(1)
+        
+        # Check if our custom user table exists
+        if 'chats_user' in table_names:
+            print('✓ chats_user table exists')
+        else:
+            print('✗ chats_user table missing')
+            exit(1)
+        
+        # Test that we can create a user
+        from chats.models import User
+        try:
+            user = User.objects.create_user(username='testuser', email='test@example.com', password='testpass123')
+            print('✓ User creation successful')
+            print(f'Created user: {user.username} with ID: {user.user_id}')
+        except Exception as e:
+            print(f'✗ User creation failed: {e}')
+            exit(1)
         "
 
     - name: Run tests
