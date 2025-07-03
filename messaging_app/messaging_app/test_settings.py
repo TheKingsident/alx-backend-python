@@ -30,15 +30,9 @@ CACHES = {
     }
 }
 
-# Disable migrations for faster testing
-class DisableMigrations:
-    def __contains__(self, item):
-        return True
-
-    def __getitem__(self, item):
-        return None
-
-MIGRATION_MODULES = DisableMigrations()
+# Allow migrations for CI to ensure database is properly set up
+# We need Django's built-in migrations to create core tables
+# MIGRATION_MODULES = DisableMigrations()  # Disabled for CI
 
 # Test-specific settings
 SECRET_KEY = 'test-secret-key-for-github-actions'

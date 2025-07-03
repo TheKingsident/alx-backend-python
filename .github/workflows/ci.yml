@@ -74,10 +74,34 @@ jobs:
         echo "DB_HOST=127.0.0.1" >> $GITHUB_ENV
         echo "DB_PORT=3306" >> $GITHUB_ENV
 
+    - name: Check migrations
+      run: |
+        cd messaging_app
+        python manage.py showmigrations --settings=messaging_app.test_settings
+        
     - name: Run migrations
       run: |
         cd messaging_app
-        python manage.py migrate --settings=messaging_app.test_settings
+        python manage.py migrate --settings=messaging_app.test_settings --run-syncdb
+
+    - name: Verify database setup
+      run: |
+        cd messaging_app
+        python manage.py shell --settings=messaging_app.test_settings -c "
+        from django.db import connection
+        cursor = connection.cursor()
+        cursor.execute('SHOW TABLES')
+        tables = cursor.fetchall()
+        print('Available tables:', [table[0] for table in tables])
+        
+        # Check if django_content_type table exists
+        table_names = [table[0] for table in tables]
+        if 'django_content_type' in table_names:
+            print('✓ django_content_type table exists')
+        else:
+            print('✗ django_content_type table missing')
+            exit(1)
+        "
 
     - name: Run tests
       run: |
