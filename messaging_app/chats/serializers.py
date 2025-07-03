@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.db import models
 from .models import User, Conversation, Message
 
+
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source='get_full_name', read_only=True)
 
@@ -12,6 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
             'phone_number'
         ]
         read_only_fields = ['user_id']
+
 
 class MessageSerializer(serializers.ModelSerializer):
     sender = UserSerializer(read_only=True, source='sender_id')
@@ -58,6 +60,7 @@ class MessageSerializer(serializers.ModelSerializer):
             conversation_id=conversation,
             **validated_data
         )
+
 
 class ConversationSerializer(serializers.ModelSerializer):
     participants = serializers.PrimaryKeyRelatedField(many=True, read_only=True)

@@ -21,7 +21,7 @@ conversations = []
 for i in range(2):
     conv = Conversation.objects.create()
     # Add 2-3 participants per conversation
-    conv.participants.set(users[i:i+3])
+    conv.participants.set(users[i:i + 3])
     conversations.append(conv)
 print(f"Created {len(conversations)} conversations.")
 

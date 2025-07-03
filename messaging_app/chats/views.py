@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
 from rest_framework import viewsets, filters, status
 from django_filters.rest_framework import DjangoFilterBackend
@@ -9,12 +8,14 @@ from .permissions import IsConversationParticipant
 from .pagination import CustomPagination
 from .filters import MessageFilter
 
+
 class UserViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing users.
     """
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
 
 class MessageViewSet(viewsets.ModelViewSet):
     """
@@ -48,7 +49,7 @@ class MessageViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=201)
-    
+
     def get_serializer_context(self):
         """
         Add the request user to the serializer context.
@@ -76,21 +77,22 @@ class ConversationViewSet(viewsets.ModelViewSet):
         if self.action == 'list':
             qs = qs.filter(participants=user).distinct()
         return qs
-    
+
     def create(self, request, *args, **kwargs):
         participants = request.data.get('participants', [])
         if not isinstance(participants, list) or len(participants) < 2:
             return Response({"error": "At least two participants are required to create a conversation."}, status=400)
-        
+
         conversation = Conversation.objects.create()
         conversation.participants.set(User.objects.filter(id__in=participants))
         conversation.save()
-        
+
         serializer = self.get_serializer(conversation)
         return Response(serializer.data, status=201)
-    
+
     def update(self, request, *args, **kwargs):
         conversation = self.get_object()
         if request.user not in conversation.participants.all():
-            return Response({"detail": "You do not have permission to update this conversation."}, status=status.HTTP_403_FORBIDDEN)
+            return Response({"detail": "You do not have permission to update this conversation."},
+                            status=status.HTTP_403_FORBIDDEN)
         return super().update(request, *args, **kwargs)

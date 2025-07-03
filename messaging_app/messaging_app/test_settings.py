@@ -1,7 +1,6 @@
 """
 Test settings for GitHub Actions CI/CD
 """
-from .settings import *
 import os
 
 # Override database settings for testing

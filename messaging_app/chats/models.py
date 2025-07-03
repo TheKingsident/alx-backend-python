@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
 
+
 class User(AbstractUser):
     """
     Custom user model that extends the default Django user model.
@@ -20,6 +21,7 @@ class User(AbstractUser):
         """
         return self.user_id
 
+
 class Conversation(models.Model):
     """
     Model representing a conversation between users.
@@ -30,6 +32,7 @@ class Conversation(models.Model):
 
     def __str__(self):
         return f"Conversation {self.conversation_id} between {self.participants.count()} users"
+
 
 class Message(models.Model):
     """
@@ -44,8 +47,8 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message {self.message_id} from {self.sender_id.username} to {self.recipient_id.username}"
+
     class Meta:
         ordering = ['sent_at']
         verbose_name = 'Message'
         verbose_name_plural = 'Messages'
-
